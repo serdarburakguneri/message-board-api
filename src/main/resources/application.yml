@@ -1,0 +1,10 @@
+spring:
+  jpa:
+    show-sql: true
+
+aws:
+  region:  ${AUTH_REGION}
+
+security:
+  issuer-uri: ${AUTH_ISSUER_URI}
+  enabled: true
