@@ -1,0 +1,30 @@
+{
+    "executionRoleArn": "arn:aws:iam::039289845488:role/ssm-ecs-task-role",
+    "containerDefinitions": [
+        {
+            "name": "msgboard-app",
+            "image": "039289845488.dkr.ecr.us-east-2.amazonaws.com/msgboard-app:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 8080,
+                    "protocol": "tcp",
+                    "containerPort": 8080
+                }
+            ],
+            "environmentFiles": [
+                {
+                    "value": "arn:aws:s3:::sbg-messaging/messaging_app_docker.env",
+                    "type": "s3"
+                }
+            ]
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "networkMode": "awsvpc",
+    "cpu": "1024",
+    "memory": "2048",
+    "family": "ssm-messaging"
+}
