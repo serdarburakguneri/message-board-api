@@ -5,6 +5,10 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class Content {
 
+  public Content(){
+
+  }
+
   public Content(String text) {
     setText(text);
   }

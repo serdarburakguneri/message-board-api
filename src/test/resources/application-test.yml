@@ -1,2 +1,4 @@
 security:
-  enabled: false
+  issuer-uri:
+  configuration:
+    enabled: false

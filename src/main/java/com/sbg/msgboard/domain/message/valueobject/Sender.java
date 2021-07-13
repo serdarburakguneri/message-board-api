@@ -7,11 +7,13 @@ import java.util.UUID;
 @Embeddable
 public class Sender {
 
+  public Sender() {}
+
   public Sender(UUID id) {
     setId(id);
   }
 
-  @Column(name="sender_id")
+  @Column(name = "sender_id")
   private UUID id;
 
   public UUID getId() {

@@ -9,8 +9,8 @@ import com.sbg.msgboard.domain.message.model.Message;
 import com.sbg.msgboard.domain.message.repository.MessageRepository;
 import com.sbg.msgboard.domain.message.valueobject.Content;
 import com.sbg.msgboard.domain.message.valueobject.Sender;
-import com.sbg.msgboard.infrastructure.security.IdentityUtil;
 import com.sbg.msgboard.shared.exception.UserAuthorizationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -27,32 +27,31 @@ public class MessageDomainServiceImpl implements MessageDomainService {
   @Resource private MessageRepository messageRepository;
   @Resource private MessageMapper messageMapper;
 
-  @Override
-  public MessageDTO createMessage(MessageCreationDTO messageCreationDTO) {
+  @Value("${security.configuration.enabled}")
+  private boolean securityEnabled;
 
-    Message message =
-        new Message(
-            new Content(messageCreationDTO.getText()),
-            new Sender(IdentityUtil.getAuthenticatedUserId()));
+  @Override
+  public MessageDTO createMessage(UUID userId, MessageCreationDTO messageCreationDTO) {
+    Message message = new Message(new Content(messageCreationDTO.getText()), new Sender(userId));
     messageRepository.save(message);
     return messageMapper.toMessageDTO(message);
   }
 
   @Override
-  public MessageDTO updateMessage(UUID messageId, MessageUpdateDTO messageUpdateDTO)
+  public MessageDTO updateMessage(UUID userId, UUID messageId, MessageUpdateDTO messageUpdateDTO)
       throws MessageNotFoundException, UserAuthorizationException {
     Message message = findMessageById(messageId);
-    validateMessageOwnership(message);
+    validateMessageOwnership(message, userId);
     message.setContent(new Content(messageUpdateDTO.getText()));
     messageRepository.save(message);
     return messageMapper.toMessageDTO(message);
   }
 
   @Override
-  public void deleteMessage(UUID messageId)
+  public void deleteMessage(UUID userId, UUID messageId)
       throws MessageNotFoundException, UserAuthorizationException {
     Message message = findMessageById(messageId);
-    validateMessageOwnership(message);
+    validateMessageOwnership(message, userId);
     messageRepository.delete(message);
   }
 
@@ -71,11 +70,10 @@ public class MessageDomainServiceImpl implements MessageDomainService {
     return message.get();
   }
 
-  private void validateMessageOwnership(Message message) throws UserAuthorizationException {
+  private void validateMessageOwnership(Message message, UUID modifierId)
+      throws UserAuthorizationException {
 
-    UUID authenticatedUserId = IdentityUtil.getAuthenticatedUserId();
-
-    if (!message.getSender().getId().equals(authenticatedUserId)) {
+    if (!message.getSender().getId().equals(modifierId)) {
       throw new UserAuthorizationException();
     }
   }

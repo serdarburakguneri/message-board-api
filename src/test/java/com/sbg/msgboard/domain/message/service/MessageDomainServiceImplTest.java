@@ -8,11 +8,8 @@ import com.sbg.msgboard.domain.message.model.Message;
 import com.sbg.msgboard.domain.message.repository.MessageRepository;
 import com.sbg.msgboard.domain.message.valueobject.Content;
 import com.sbg.msgboard.domain.message.valueobject.Sender;
-import com.sbg.msgboard.infrastructure.security.IdentityUtil;
 import com.sbg.msgboard.shared.exception.UserAuthorizationException;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -42,148 +39,121 @@ public class MessageDomainServiceImplTest {
   @Test
   public void test_create_message() {
 
-    try (MockedStatic<IdentityUtil> identityUtil = Mockito.mockStatic(IdentityUtil.class)) {
+    UUID senderId = UUID.randomUUID();
+    String text = "testMessage";
+    Message expectedMessage = new Message(new Content(text), new Sender(senderId));
 
-      UUID senderId = UUID.randomUUID();
+    doReturn(expectedMessage).when(messageRepository).save(any(Message.class));
 
-      identityUtil.when(IdentityUtil::getAuthenticatedUserId).thenReturn(senderId);
+    MessageCreationDTO messageCreationDTO = new MessageCreationDTO(text);
+    MessageDTO createdMessageDTO = messageDomainService.createMessage(senderId, messageCreationDTO);
 
-      String text = "testMessage";
-      Message expectedMessage = new Message(new Content(text), new Sender(senderId));
-
-      doReturn(expectedMessage).when(messageRepository).save(any(Message.class));
-
-      MessageCreationDTO messageCreationDTO = new MessageCreationDTO(text);
-      MessageDTO createdMessageDTO = messageDomainService.createMessage(messageCreationDTO);
-
-      assertNotNull(createdMessageDTO);
-      assertEquals(text, createdMessageDTO.getText());
-    }
+    assertNotNull(createdMessageDTO);
+    assertEquals(text, createdMessageDTO.getText());
   }
 
   @Test
   public void test_update_message_when_message_belongs_to_different_user()
       throws MessageNotFoundException, UserAuthorizationException {
 
-    try (MockedStatic<IdentityUtil> identityUtil = Mockito.mockStatic(IdentityUtil.class)) {
+    UUID messageId = UUID.randomUUID();
+    UUID senderId = UUID.randomUUID();
 
-      UUID messageId = UUID.randomUUID();
-      UUID senderId = UUID.randomUUID();
-      int messageVersion = 0;
+    Message existingMessage = new Message(new Content("old message"), new Sender(senderId));
 
-      Message existingMessage = new Message(new Content("old message"), new Sender(senderId));
+    doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
 
-      existingMessage.setId(messageId);
+    UUID differentSenderId = UUID.randomUUID();
 
-      doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
-
-      UUID differentSenderId = UUID.randomUUID();
-      identityUtil.when(IdentityUtil::getAuthenticatedUserId).thenReturn(differentSenderId);
-
-      assertThrows(
-          UserAuthorizationException.class,
-          () -> {
-            String newText = "new message";
-            MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO(newText, messageVersion);
-            messageDomainService.updateMessage(messageId, messageUpdateDTO);
-          });
-    }
+    assertThrows(
+        UserAuthorizationException.class,
+        () -> {
+          String newText = "updated message";
+          MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO(newText);
+          messageDomainService.updateMessage(differentSenderId, messageId, messageUpdateDTO);
+        });
   }
 
   @Test
   public void test_update_message_when_message_is_not_present() {
     UUID messageId = UUID.randomUUID();
-    int messageVersion = 0;
+    UUID senderId = UUID.randomUUID();
+
     doReturn(Optional.empty()).when(messageRepository).findById(eq(messageId));
 
     assertThrows(
         MessageNotFoundException.class,
         () -> {
           messageDomainService.updateMessage(
-              messageId, new MessageUpdateDTO("updateMessage", messageVersion));
+              messageId, senderId, new MessageUpdateDTO("updated message"));
         });
   }
 
   @Test
   public void test_update_message() throws MessageNotFoundException, UserAuthorizationException {
 
-    try (MockedStatic<IdentityUtil> identityUtil = Mockito.mockStatic(IdentityUtil.class)) {
+    String oldText = "old message";
+    UUID messageId = UUID.randomUUID();
+    UUID senderId = UUID.randomUUID();
 
-      String oldText = "old message";
-      UUID messageId = UUID.randomUUID();
-      UUID senderId = UUID.randomUUID();
-      int messageVersion = 0;
+    Message existingMessage = new Message(new Content(oldText), new Sender(senderId));
 
-      Message existingMessage = new Message(new Content(oldText), new Sender(senderId));
-      existingMessage.setId(messageId);
-      existingMessage.setVersion(messageVersion);
+    doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
 
-      identityUtil.when(IdentityUtil::getAuthenticatedUserId).thenReturn(senderId);
+    doReturn(existingMessage).when(messageRepository).save(any(Message.class));
 
-      doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
+    String newText = "updated message";
+    MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO(newText);
+    MessageDTO updatedMessageDTO =
+        messageDomainService.updateMessage(senderId, messageId, messageUpdateDTO);
 
-      doReturn(existingMessage).when(messageRepository).save(any(Message.class));
-
-      String newText = "new message";
-      MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO(newText, messageVersion);
-      MessageDTO updatedMessageDTO =
-          messageDomainService.updateMessage(messageId, messageUpdateDTO);
-
-      assertNotNull(updatedMessageDTO);
-      assertEquals(newText, updatedMessageDTO.getText());
-    }
+    assertNotNull(updatedMessageDTO);
+    assertEquals(newText, updatedMessageDTO.getText());
   }
 
   @Test
   public void test_delete_message_when_message_is_not_present() {
     UUID messageId = UUID.randomUUID();
+    UUID modifierUserId = UUID.randomUUID();
+
     doReturn(Optional.empty()).when(messageRepository).findById(eq(messageId));
 
     assertThrows(
         MessageNotFoundException.class,
         () -> {
-          messageDomainService.deleteMessage(messageId);
+          messageDomainService.deleteMessage(modifierUserId, messageId);
         });
   }
 
   @Test
   public void test_delete_message_when_message_belongs_to_different_user() {
 
-    try (MockedStatic<IdentityUtil> identityUtil = Mockito.mockStatic(IdentityUtil.class)) {
+    UUID messageId = UUID.randomUUID();
+    UUID senderId = UUID.randomUUID();
+    Message existingMessage = new Message(new Content("msg"), new Sender(senderId));
 
-      UUID messageId = UUID.randomUUID();
-      UUID senderId = UUID.randomUUID();
-      Message existingMessage = new Message(new Content("msg"), new Sender(senderId));
+    UUID differentUserId = UUID.randomUUID();
 
-      UUID differentUserId = UUID.randomUUID();
-      identityUtil.when(IdentityUtil::getAuthenticatedUserId).thenReturn(differentUserId);
+    doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
 
-      doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
-
-      assertThrows(
-          UserAuthorizationException.class,
-          () -> {
-            messageDomainService.deleteMessage(messageId);
-          });
-    }
+    assertThrows(
+        UserAuthorizationException.class,
+        () -> {
+          messageDomainService.deleteMessage(differentUserId, messageId);
+        });
   }
 
   @Test
   public void test_delete_message() throws MessageNotFoundException, UserAuthorizationException {
 
-    try (MockedStatic<IdentityUtil> identityUtil = Mockito.mockStatic(IdentityUtil.class)) {
+    UUID messageId = UUID.randomUUID();
+    UUID senderId = UUID.randomUUID();
+    Message existingMessage = new Message(new Content("msg"), new Sender(senderId));
 
-      UUID messageId = UUID.randomUUID();
-      UUID senderId = UUID.randomUUID();
-      Message existingMessage = new Message(new Content("msg"), new Sender(senderId));
+    doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
+    doNothing().when(messageRepository).delete(any(Message.class));
 
-      identityUtil.when(IdentityUtil::getAuthenticatedUserId).thenReturn(senderId);
-
-      doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
-      doNothing().when(messageRepository).delete(any(Message.class));
-
-      messageDomainService.deleteMessage(messageId);
-    }
+    messageDomainService.deleteMessage(senderId, messageId);
   }
 
   @Test

@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 @Entity
 public class Message extends BaseModel {
 
+  public Message() {}
+
   public Message(Content content, Sender sender) {
     setSender(sender);
     setContent(content);

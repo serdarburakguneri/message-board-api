@@ -1,5 +1,7 @@
 package com.sbg.msgboard.domain.message.dto;
 
+import javax.validation.constraints.NotBlank;
+
 public class MessageCreationDTO {
 
   public MessageCreationDTO() {}
@@ -8,6 +10,7 @@ public class MessageCreationDTO {
     setText(text);
   }
 
+  @NotBlank(message = "Text is mandatory")
   private String text;
 
   public String getText() {

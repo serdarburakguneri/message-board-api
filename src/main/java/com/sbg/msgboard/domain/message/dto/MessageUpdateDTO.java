@@ -1,14 +1,17 @@
 package com.sbg.msgboard.domain.message.dto;
 
+import javax.validation.constraints.NotBlank;
+
 public class MessageUpdateDTO {
 
-  public MessageUpdateDTO(String text, int version) {
+  public MessageUpdateDTO() {}
+
+  public MessageUpdateDTO(String text) {
     setText(text);
-    setVersion(version);
   }
 
+  @NotBlank(message = "Text is mandatory")
   private String text;
-  private int version;
 
   public String getText() {
     return text;
@@ -16,13 +19,5 @@ public class MessageUpdateDTO {
 
   public void setText(String text) {
     this.text = text;
-  }
-
-  public int getVersion() {
-    return version;
-  }
-
-  public void setVersion(int version) {
-    this.version = version;
   }
 }

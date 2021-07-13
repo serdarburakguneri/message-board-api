@@ -11,12 +11,13 @@ import java.util.UUID;
 
 public interface MessageDomainService {
 
-  MessageDTO createMessage(MessageCreationDTO messageCreationDTO);
+  MessageDTO createMessage(UUID userId, MessageCreationDTO messageCreationDTO);
 
-  MessageDTO updateMessage(UUID messageId, MessageUpdateDTO messageUpdateDTO)
+  MessageDTO updateMessage(UUID userId, UUID messageId, MessageUpdateDTO messageUpdateDTO)
       throws MessageNotFoundException, UserAuthorizationException;
 
-  void deleteMessage(UUID messageId) throws MessageNotFoundException, UserAuthorizationException;
+  void deleteMessage(UUID userId, UUID messageId)
+      throws MessageNotFoundException, UserAuthorizationException;
 
   List<MessageDTO> findAllMessages(int page, int size);
 }
