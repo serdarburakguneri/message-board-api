@@ -6,3 +6,4 @@ security:
   issuer-uri: ${AUTH_ISSUER_URI}
   configuration:
     enabled: true
+    allowed-origins: ${ALLOWED_ORIGINS}
