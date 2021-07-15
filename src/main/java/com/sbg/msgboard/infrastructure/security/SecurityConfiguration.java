@@ -1,7 +1,6 @@
 package com.sbg.msgboard.infrastructure.security;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,6 +32,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     if (securityEnabled) {
 
       http.cors()
+          .configurationSource(getCorsConfigurationSource())
           .and()
           .authorizeRequests(
               expressionInterceptUrlRegistry ->
@@ -50,13 +50,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
   }
 
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
+  private CorsConfigurationSource getCorsConfigurationSource() {
     final CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(getAllowedOrigins());
     configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE", "PATCH"));
     configuration.setAllowCredentials(true);
-    configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+    configuration.setAllowedHeaders(
+        Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
     final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
     return source;
