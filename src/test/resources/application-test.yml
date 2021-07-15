@@ -2,4 +2,4 @@ security:
   issuer-uri:
   configuration:
     enabled: false
-      allowed-origins: *
+    allowed-origins: test
