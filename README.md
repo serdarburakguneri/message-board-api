@@ -35,6 +35,9 @@ repository as a source and creates a Docker image to push to ECR (Elastic Contai
 CodeDeploy service of AWS starts a blue/green deployment to run a new application on Elastic Container Service with 
 the docker image which is stored in ECR service.
 
+Sensitive data like authentication application url are provided by docker environment variables. These variables are in 
+a file in a private S3 bucket. 
+
 Here is a screenshot of existing pipeline;
 
  ![image info](./images/codepipeline.jpg)
