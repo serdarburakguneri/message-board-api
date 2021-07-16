@@ -65,7 +65,7 @@ The source code can be found at : https://github.com/serdarburakguneri/message-b
  
 ###2- Using the demo back-end application. 
 
-It's better to have a back-end application in a private subnet but a public URL was created for demonstration purposes.
+It's better to have a back-end application in a private subnet but a public URL was necessary for demonstration purposes.
 
 Since the application is secure, a valid jwt is necessary to get successful responses. There is a section in the front-end 
 application where jwt and user id info can be found. 
