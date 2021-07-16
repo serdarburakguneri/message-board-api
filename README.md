@@ -54,7 +54,7 @@ There is a demo front-end application which can be used to test the back-end
 api. 
 
 Cognito User Pools service of AWS is the IAM service of the demo environment. The user pool has a client configuration 
-to use Oauth2 Authorization Code flow. To use demo applications, user should sign-in and get a temporary token which will
+to use Oauth2 Authorization Code flow. To use demo applications, user should sign-in (or sign up) and get a temporary token which will
 later be used to get access token. 
 
 https://msgboard.serdarburakguneri.com  is the url of the demo front-end application.
