@@ -30,7 +30,7 @@ appspec.yml, buildspec.yml and taskdef.json are CI/CD files to be used with Code
 If the value of "security.configuration.enabled" parameter is true, application security is enabled with oauth2 resource 
 server. This parameter also allows method security which is useful for pre authorizing rest controller methods. During execution of 
 update message and delete message methods (PUT and DELETE), a pre authorization is done by validating the equality of 
-received user id authenticated user id.
+received user id and authenticated user id.
 
 @PreAuthorize("authentication.name.equals((#userId).toString())")  
 
