@@ -10,7 +10,6 @@ import com.sbg.msgboard.domain.message.repository.MessageRepository;
 import com.sbg.msgboard.domain.message.valueobject.Content;
 import com.sbg.msgboard.domain.message.valueobject.Sender;
 import com.sbg.msgboard.shared.exception.UserAuthorizationException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,9 +25,6 @@ public class MessageDomainServiceImpl implements MessageDomainService {
 
   @Resource private MessageRepository messageRepository;
   @Resource private MessageMapper messageMapper;
-
-  @Value("${security.configuration.enabled}")
-  private boolean securityEnabled;
 
   @Override
   public MessageDTO createMessage(UUID userId, MessageCreationDTO messageCreationDTO) {
