@@ -14,22 +14,22 @@ Spring Boot Validation to validate rest api inputs, <br/>
 H2Database for the in memory database usage.
 
 ### Resources
-There 2 property resources for the project:
+There are 2 property resources for the project:
 
 /src/main/resources/application.yml is the main property resource. 
 
-/src/test/resources/application.yml is used by unit test methods because of the 'test' profile 
+/src/test/resources/application.yml is used by unit test methods with 'test' profile 
 they use.
 
-Dockerfile has the configuration to create a Docker image of a AWS compatible Java 11 application.
+Dockerfile has necessary configuration to create a Docker image of an AWS compatible Java 11 application.
 
-appspec.yml, builddspec.yml and taskdef.json are CI/CD files to be used with CodePipeline services of AWS
+appspec.yml, buildspec.yml and taskdef.json are CI/CD files to be used with CodePipeline service of AWS
 
 ### Building the project
 
 A jar file can be created with "mvn package" command to test the project on a local computer.
 
-Thanks to CodePipeline service of AWS, the application is now running on Elastic Container Service with a 
+With CodePipeline service of AWS, the application is now running on Elastic Container Service with a 
 serverless methodology. Github Webhooks is used to trigger the CodePipeline. CodeBuild service of AWS uses this 
 repository as a source and creates a Docker image to push to ECR (Elastic Container Registry) service of AWS.
 CodeDeploy service of AWS starts a blue/green deployment to run a new application on Elastic Container Service with 
@@ -37,7 +37,7 @@ the docker image which is stored in ECR service.
 
 Here is a screenshot of existing pipeline;
 
- ![image info](./message-board-api/images/codepipeline.jpg)
+ ![image info](./images/codepipeline.jpg)
 
 ### Testing the project
 
@@ -56,7 +56,7 @@ https://msgboard.serdarburakguneri.com  is the url of the demo front-end applica
 
 The source code can be found at : https://github.com/serdarburakguneri/message-board-ui
 
- ![image info](./message-board-api/images/frontend1.jpg)
+ ![image info](./images/frontend1.jpg)
  
 ####2- Using the demo back-end application. 
 
@@ -65,7 +65,7 @@ It's better to have a back-end application in a private subnet but a public URL 
 Since the application is secure, a valid jwt is necessary to get successful responses. There is a section in the front-end 
 application where jwt and user id info can be found. 
 
- ![image info](./message-board-api/images/frontend2.jpg)
+ ![image info](./images/frontend2.jpg)
  
  ````
 a) Creating a message
@@ -74,7 +74,7 @@ Method : POST
 URL:  https://msgboardapi.serdarburakguneri.com/msgboard/api/v1/user/{USER_ID}/message
 (Please find your user id from the demo front-end application)
 HEADERS: 'Authorization: BEARER {JWT}' , 'Content-Type: application/json'
-(Please find your jwt from front end)
+(Please find your jwt from the demo front-end application)
 BODY:  { "text" : "messageToCreate" }
  
 Request
@@ -91,13 +91,15 @@ curl --location --request POST 'https://msgboardapi.serdarburakguneri.com/msgboa
 Response 201 CREATED
 
 {
-    "id": "e1564727-ee30-419f-92b9-b97dede8106e",
-    "name": "board",
-    "createdAt": "2021-07-12T22:54:58.896457Z",
-    "modifiedAt": "2021-07-12T22:54:58.896489Z",
+    "id": "ae8dea29-3653-4167-8fcf-37ad332c3864",
+    "text": "hi",
+    "senderId": "26c21f47-5823-4252-9731-8c77cbf4c2a1",
+    "createdAt": "2021-07-16T00:16:32.031476Z",
+    "modifiedAt": "2021-07-16T00:16:32.031484Z",
     "version": 0
 }
- ````
+
+````
 
 ````
 b) Updating a message
@@ -163,6 +165,33 @@ curl --location --request GET 'https://msgboardapi.serdarburakguneri.com/msgboar
 --header 'Authorization: Bearer eyJraWQiOiJoUWlmM2pTZFB0OGFZRVYreHVyOEt5MDY0SE1JSUg5Y0hLSWNUSDEwWlwvbz0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIyNmMyMWY0Ny01ODIzLTQyNTItOTczMS04Yzc3Y2JmNGMyYTEiLCJldmVudF9pZCI6ImM2OGQ0MTJjLTI5M2MtNDRkNi05MTVjLWMyNTNlMzI5MWZmOCIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoib3BlbmlkIiwiYXV0aF90aW1lIjoxNjI2MzUwOTIzLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0yLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMl9NWFQ5amVXSDUiLCJleHAiOjE2MjY0MzczMjMsImlhdCI6MTYyNjM1MDkyMywidmVyc2lvbiI6MiwianRpIjoiY2EyYjViMTMtZTkzNS00OTBiLThhZTMtODI4NGM2OTMwYTQ5IiwiY2xpZW50X2lkIjoiMWhybW85azBnbGZoOXVkZ25pZ2kzMGxydGQiLCJ1c2VybmFtZSI6InNiZ3VuZXJpIn0.v5DE3PmyEVu7s0ZCwvSrIqSYQ-IpBaZsAmy7TZi1tc-XUBr_JNTj76ATEXci4wI71_2CRFD7BsJ2FA8D10Z1vMkYAkSrW4UwzYorotKPCIQAqYEy8REMdBouOJ9fR4drR3esz8Y5PiDFD5LMkU7aEipMCYq2LKWxcTRC7q5tASMIDY0cUhyxp5vI_WIcOV4qrla55aKUEcig2rVUrDVOi82UQ_okkfaxvy2V9M9tBhMnQ_R_Qu3tZEUJ8AgkzwNKlr3tCp1kY8E908ejZxuZd96p-si4ROLAbuTH01czXeZT5N8erLdiMYCs6prQDt82SCWYCcyhX7211CPyseg1UA'
 
 Response 200 OK
+
+[  
+    {
+        "id": "ebd622ff-9fbe-49c7-8894-0ef190d9f75f",
+        "text": "At 2 pm",
+        "senderId": "26c21f47-5823-4252-9731-8c77cbf4c2a1",
+        "createdAt": "2021-07-15T23:31:34.913482Z",
+        "modifiedAt": "2021-07-16T01:22:43.716720Z",
+        "version": 1
+    },
+    {
+        "id": "89825152-480e-4e1e-b606-2d3e6980d254",
+        "text": "What time does the meeting start?",
+        "senderId": "ac66d86a-5ccd-4376-88b2-d9833b0eaae1",
+        "createdAt": "2021-07-15T23:21:13.232130Z",
+        "modifiedAt": "2021-07-15T23:29:14.013928Z",
+        "version": 1
+    },
+    {
+        "id": "ee690511-a739-447c-ab29-3f204ee1c2a0",
+        "text": "Get ready for the retrospective!",
+        "senderId": "26c21f47-5823-4252-9731-8c77cbf4c2a1",
+        "createdAt": "2021-07-15T23:18:57.700770Z",
+        "modifiedAt": "2021-07-15T23:18:57.700777Z",
+        "version": 0
+    }
+]
 
 ````
 
