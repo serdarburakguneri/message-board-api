@@ -29,11 +29,13 @@ appspec.yml, buildspec.yml and taskdef.json are CI/CD files to be used with Code
 
 A jar file can be created with "mvn package" command to test the project on a local computer.
 
-With CodePipeline service of AWS, the application is now running on Elastic Container Service with a 
-serverless methodology. Github Webhooks is used to trigger the CodePipeline. CodeBuild service of AWS uses this 
+With CodePipeline service of AWS, the application is now running at Elastic Container Service with a 
+serverless methodology:
+ 
+Github Webhooks triggers the CodePipeline. CodeBuild service of AWS uses this 
 repository as a source and creates a Docker image to push to ECR (Elastic Container Registry) service of AWS.
-CodeDeploy service of AWS starts a blue/green deployment to run a new application on Elastic Container Service with 
-the docker image which is stored in ECR service.
+CodeDeploy service of AWS starts a blue/green deployment to run a new application at Elastic Container Service with 
+the docker image created before.
 
 Sensitive data like authentication application url are provided by docker environment variables. These variables are in 
 a file in a private S3 bucket. 
