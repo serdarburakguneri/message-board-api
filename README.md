@@ -46,7 +46,7 @@ Here is a screenshot of existing pipeline;
 
 There are three ways to test the application. 
 
-####1 - Using the demo front-end application: 
+###1 - Using the demo front-end application: 
 
 There is a demo front-end application which can be used to test the back-end 
 api. 
@@ -61,7 +61,7 @@ The source code can be found at : https://github.com/serdarburakguneri/message-b
 
  ![image info](./images/frontend1.jpg)
  
-####2- Using the demo back-end application. 
+###2- Using the demo back-end application. 
 
 It's better to have a back-end application in a private subnet but a public URL was created for demonstration purposes.
 
@@ -198,7 +198,7 @@ Response 200 OK
 
 ````
 
-#### 3 - Using localhost
+###3 - Using localhost
 
 The application uses port 8080 so please change base url to http://localhost:8080 and try the steps of second approach.
 Using a test profile or updating application.yml file by disabling security (security.configuration.enabled = false)
