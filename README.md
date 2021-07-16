@@ -25,6 +25,17 @@ Dockerfile has necessary configuration to create a Docker image of an AWS compat
 
 appspec.yml, buildspec.yml and taskdef.json are CI/CD files to be used with CodePipeline service of AWS
 
+### Security
+
+If the value of "security.configuration.enabled" parameter is true, application security is enabled with oauth2 resource 
+server. This parameter also allows method security which is useful for pre authorizing rest controller methods. During execution of 
+update message and delete message methods (PUT and DELETE), a pre authorization is done by validating the equality of 
+received user id authenticated user id.
+
+@PreAuthorize("authentication.name.equals((#userId).toString())")  
+
+With @PreAuthorize annotation,  we authorize if a user is trying to modify his / her own resources.
+
 ### Building the project
 
 A jar file can be created with "mvn package" command to test the project on a local computer.
