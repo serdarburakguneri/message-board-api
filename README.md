@@ -214,7 +214,7 @@ Response 200 OK
 ###3 - Using localhost
 
 The application uses port 8080 so please change base url to http://localhost:8080 and try the steps of second approach.
-Using a test profile or updating application.yml file by disabling security (security.configuration.enabled = false)
+Using a test profile or updating application.yml file by disabling security (security.configuration.enabled = false, security.issuer-uri= , security.configuration.allowed-origins= )
 is the only way to test the application without authentication.
 
   
