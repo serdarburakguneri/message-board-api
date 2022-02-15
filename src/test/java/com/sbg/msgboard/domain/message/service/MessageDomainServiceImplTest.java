@@ -1,13 +1,12 @@
 package com.sbg.msgboard.domain.message.service;
 
-import com.sbg.msgboard.domain.message.dto.MessageCreationDTO;
-import com.sbg.msgboard.domain.message.dto.MessageDTO;
-import com.sbg.msgboard.domain.message.dto.MessageUpdateDTO;
+import com.sbg.msgboard.TestEntityGenerator;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageCreationDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageUpdateDTO;
 import com.sbg.msgboard.domain.message.exception.MessageNotFoundException;
 import com.sbg.msgboard.domain.message.model.Message;
 import com.sbg.msgboard.domain.message.repository.MessageRepository;
-import com.sbg.msgboard.domain.message.valueobject.Content;
-import com.sbg.msgboard.domain.message.valueobject.Sender;
 import com.sbg.msgboard.shared.exception.UserAuthorizationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,12 +40,14 @@ public class MessageDomainServiceImplTest {
 
     UUID senderId = UUID.randomUUID();
     String text = "testMessage";
-    Message expectedMessage = new Message(new Content(text), new Sender(senderId));
+    Message expectedMessage = TestEntityGenerator.generateMessage(senderId, text);
 
     doReturn(expectedMessage).when(messageRepository).save(any(Message.class));
 
-    MessageCreationDTO messageCreationDTO = new MessageCreationDTO(text);
-    MessageDTO createdMessageDTO = messageDomainService.createMessage(senderId, messageCreationDTO);
+    ImmutableMessageCreationDTO messageCreationDTO =
+        TestEntityGenerator.generateMessageCreationDTO(text);
+    ImmutableMessageDTO createdMessageDTO =
+        messageDomainService.createMessage(senderId, messageCreationDTO);
 
     assertNotNull(createdMessageDTO);
     assertEquals(text, createdMessageDTO.getText());
@@ -58,8 +59,9 @@ public class MessageDomainServiceImplTest {
 
     UUID messageId = UUID.randomUUID();
     UUID senderId = UUID.randomUUID();
+    String oldText = "old message";
 
-    Message existingMessage = new Message(new Content("old message"), new Sender(senderId));
+    Message existingMessage = TestEntityGenerator.generateMessage(senderId, oldText);
 
     doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
 
@@ -69,7 +71,8 @@ public class MessageDomainServiceImplTest {
         UserAuthorizationException.class,
         () -> {
           String newText = "updated message";
-          MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO(newText);
+          ImmutableMessageUpdateDTO messageUpdateDTO =
+              ImmutableMessageUpdateDTO.builder().text(newText).build();
           messageDomainService.updateMessage(differentSenderId, messageId, messageUpdateDTO);
         });
   }
@@ -85,7 +88,9 @@ public class MessageDomainServiceImplTest {
         MessageNotFoundException.class,
         () -> {
           messageDomainService.updateMessage(
-              messageId, senderId, new MessageUpdateDTO("updated message"));
+              messageId,
+              senderId,
+              ImmutableMessageUpdateDTO.builder().text("updated message").build());
         });
   }
 
@@ -96,15 +101,16 @@ public class MessageDomainServiceImplTest {
     UUID messageId = UUID.randomUUID();
     UUID senderId = UUID.randomUUID();
 
-    Message existingMessage = new Message(new Content(oldText), new Sender(senderId));
+    Message existingMessage = TestEntityGenerator.generateMessage(senderId, oldText);
 
     doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
 
     doReturn(existingMessage).when(messageRepository).save(any(Message.class));
 
     String newText = "updated message";
-    MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO(newText);
-    MessageDTO updatedMessageDTO =
+    ImmutableMessageUpdateDTO messageUpdateDTO =
+        TestEntityGenerator.generateMessageUpdateDTO(newText);
+    ImmutableMessageDTO updatedMessageDTO =
         messageDomainService.updateMessage(senderId, messageId, messageUpdateDTO);
 
     assertNotNull(updatedMessageDTO);
@@ -130,7 +136,9 @@ public class MessageDomainServiceImplTest {
 
     UUID messageId = UUID.randomUUID();
     UUID senderId = UUID.randomUUID();
-    Message existingMessage = new Message(new Content("msg"), new Sender(senderId));
+    String text = "msg";
+
+    Message existingMessage = TestEntityGenerator.generateMessage(senderId, text);
 
     UUID differentUserId = UUID.randomUUID();
 
@@ -148,7 +156,9 @@ public class MessageDomainServiceImplTest {
 
     UUID messageId = UUID.randomUUID();
     UUID senderId = UUID.randomUUID();
-    Message existingMessage = new Message(new Content("msg"), new Sender(senderId));
+    String text = "msg";
+
+    Message existingMessage = TestEntityGenerator.generateMessage(senderId, text);
 
     doReturn(Optional.of(existingMessage)).when(messageRepository).findById(eq(messageId));
     doNothing().when(messageRepository).delete(any(Message.class));
@@ -160,8 +170,8 @@ public class MessageDomainServiceImplTest {
   public void find_all_messages() {
     List<Message> messageList = new ArrayList<>();
     UUID senderId = UUID.randomUUID();
-    messageList.add(new Message(new Content("msg1"), new Sender(senderId)));
-    messageList.add(new Message(new Content("msg1"), new Sender(senderId)));
+    messageList.add(TestEntityGenerator.generateMessage(senderId, "msg1"));
+    messageList.add(TestEntityGenerator.generateMessage(senderId, "msg2"));
     Page<Message> messagePageResult = new PageImpl<>(messageList);
 
     int pageNumber = 0;
@@ -174,7 +184,7 @@ public class MessageDomainServiceImplTest {
                 pageable ->
                     pageable.getPageNumber() == pageNumber && pageable.getPageSize() == itemCount));
 
-    List<MessageDTO> messageListResult =
+    List<ImmutableMessageDTO> messageListResult =
         messageDomainService.findAllMessages(pageNumber, itemCount);
 
     assertEquals(messageListResult.size(), messageList.size());

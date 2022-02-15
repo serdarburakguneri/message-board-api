@@ -1,8 +1,8 @@
 package com.sbg.msgboard.domain.message.service;
 
-import com.sbg.msgboard.domain.message.dto.MessageCreationDTO;
-import com.sbg.msgboard.domain.message.dto.MessageDTO;
-import com.sbg.msgboard.domain.message.dto.MessageUpdateDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageCreationDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageUpdateDTO;
 import com.sbg.msgboard.domain.message.exception.MessageNotFoundException;
 import com.sbg.msgboard.domain.message.mapper.MessageMapper;
 import com.sbg.msgboard.domain.message.model.Message;
@@ -10,12 +10,12 @@ import com.sbg.msgboard.domain.message.repository.MessageRepository;
 import com.sbg.msgboard.domain.message.valueobject.Content;
 import com.sbg.msgboard.domain.message.valueobject.Sender;
 import com.sbg.msgboard.shared.exception.UserAuthorizationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,23 +23,32 @@ import java.util.UUID;
 @Service
 public class MessageDomainServiceImpl implements MessageDomainService {
 
-  @Resource private MessageRepository messageRepository;
-  @Resource private MessageMapper messageMapper;
+  private final MessageRepository messageRepository;
+  private final MessageMapper messageMapper;
+
+  @Autowired
+  public MessageDomainServiceImpl(
+      MessageRepository messageRepository, MessageMapper messageMapper) {
+    this.messageRepository = messageRepository;
+    this.messageMapper = messageMapper;
+  }
 
   @Override
-  public MessageDTO createMessage(UUID userId, MessageCreationDTO messageCreationDTO) {
+  public ImmutableMessageDTO createMessage(
+      UUID userId, ImmutableMessageCreationDTO messageCreationDTO) {
     Message message = new Message(new Content(messageCreationDTO.getText()), new Sender(userId));
-    messageRepository.save(message);
+    message = messageRepository.save(message);
     return messageMapper.toMessageDTO(message);
   }
 
   @Override
-  public MessageDTO updateMessage(UUID userId, UUID messageId, MessageUpdateDTO messageUpdateDTO)
+  public ImmutableMessageDTO updateMessage(
+      UUID userId, UUID messageId, ImmutableMessageUpdateDTO messageUpdateDTO)
       throws MessageNotFoundException, UserAuthorizationException {
     Message message = findMessageById(messageId);
     validateMessageOwnership(message, userId);
     message.setContent(new Content(messageUpdateDTO.getText()));
-    messageRepository.save(message);
+    message = messageRepository.save(message);
     return messageMapper.toMessageDTO(message);
   }
 
@@ -52,7 +61,7 @@ public class MessageDomainServiceImpl implements MessageDomainService {
   }
 
   @Override
-  public List<MessageDTO> findAllMessages(int page, int size) {
+  public List<ImmutableMessageDTO> findAllMessages(int page, int size) {
     Pageable pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
     return messageRepository.findAll(pageRequest).map(messageMapper::toMessageDTO).getContent();
   }

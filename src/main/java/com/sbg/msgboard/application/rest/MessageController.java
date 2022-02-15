@@ -1,8 +1,8 @@
 package com.sbg.msgboard.application.rest;
 
-import com.sbg.msgboard.domain.message.dto.MessageCreationDTO;
-import com.sbg.msgboard.domain.message.dto.MessageDTO;
-import com.sbg.msgboard.domain.message.dto.MessageUpdateDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageCreationDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageUpdateDTO;
 import com.sbg.msgboard.domain.message.exception.MessageNotFoundException;
 import com.sbg.msgboard.domain.message.service.MessageDomainService;
 import com.sbg.msgboard.shared.exception.UserAuthorizationException;
@@ -26,8 +26,8 @@ public class MessageController {
   @Resource private MessageDomainService messageDomainService;
 
   @GetMapping(value = "/message", produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<List<MessageDTO>> findAll(@RequestParam int page, @RequestParam int size) {
-    List<MessageDTO> messages = messageDomainService.findAllMessages(page, size);
+  public ResponseEntity<List<ImmutableMessageDTO>> findAll(@RequestParam int page, @RequestParam int size) {
+    List<ImmutableMessageDTO> messages = messageDomainService.findAllMessages(page, size);
     return ResponseEntity.status(HttpStatus.OK).body(messages);
   }
 
@@ -36,9 +36,9 @@ public class MessageController {
       value = "/user/{userId}/message",
       consumes = APPLICATION_JSON_VALUE,
       produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<MessageDTO> createMessage(
-      @PathVariable UUID userId, @Valid @RequestBody MessageCreationDTO messageCreationDTO) {
-    MessageDTO messageDTO = messageDomainService.createMessage(userId, messageCreationDTO);
+  public ResponseEntity<ImmutableMessageDTO> createMessage(
+      @PathVariable UUID userId, @Valid @RequestBody ImmutableMessageCreationDTO messageCreationDTO) {
+    ImmutableMessageDTO messageDTO = messageDomainService.createMessage(userId, messageCreationDTO);
     return ResponseEntity.status(HttpStatus.CREATED).body(messageDTO);
   }
 
@@ -47,12 +47,12 @@ public class MessageController {
       value = "/user/{userId}/message/{messageId}",
       consumes = APPLICATION_JSON_VALUE,
       produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<MessageDTO> updateMessage(
+  public ResponseEntity<ImmutableMessageDTO> updateMessage(
       @PathVariable UUID userId,
       @PathVariable UUID messageId,
-      @Valid @RequestBody MessageUpdateDTO messageUpdateDTO)
+      @Valid @RequestBody ImmutableMessageUpdateDTO messageUpdateDTO)
       throws MessageNotFoundException, UserAuthorizationException {
-    MessageDTO messageDTO = messageDomainService.updateMessage(userId, messageId, messageUpdateDTO);
+    ImmutableMessageDTO messageDTO = messageDomainService.updateMessage(userId, messageId, messageUpdateDTO);
     return ResponseEntity.status(HttpStatus.OK).body(messageDTO);
   }
 

@@ -4,16 +4,13 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 public class Content {
+  private String text;
 
-  public Content(){
-
-  }
+  public Content() {}
 
   public Content(String text) {
-    setText(text);
+    this.setText(text);
   }
-
-  private String text;
 
   public String getText() {
     return text;

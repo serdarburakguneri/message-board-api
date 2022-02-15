@@ -2,9 +2,9 @@ package com.sbg.msgboard.application.rest;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sbg.msgboard.domain.message.dto.MessageCreationDTO;
-import com.sbg.msgboard.domain.message.dto.MessageDTO;
-import com.sbg.msgboard.domain.message.dto.MessageUpdateDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageCreationDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageUpdateDTO;
 import com.sbg.msgboard.domain.message.service.MessageDomainService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.sbg.msgboard.TestEntityGenerator.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -40,10 +41,10 @@ public class MessageControllerTest {
   @Test
   public void test_find_messages() throws Exception {
 
-    List<MessageDTO> messages = new ArrayList<>();
-    messages.add(new MessageDTO());
-    messages.add(new MessageDTO());
-    messages.add(new MessageDTO());
+    List<ImmutableMessageDTO> messages = new ArrayList<>();
+    messages.add(generateMessageDTO(UUID.randomUUID(), "msg1"));
+    messages.add(generateMessageDTO(UUID.randomUUID(), "msg2"));
+    messages.add(generateMessageDTO(UUID.randomUUID(), "msg3"));
 
     int page = 0;
     int size = messages.size();
@@ -63,8 +64,8 @@ public class MessageControllerTest {
             .andReturn();
 
     String response = mvcResult.getResponse().getContentAsString();
-    List<MessageDTO> messageListResult =
-        objectMapper.readValue(response, new TypeReference<List<MessageDTO>>() {});
+    List<ImmutableMessageDTO> messageListResult =
+        objectMapper.readValue(response, new TypeReference<List<ImmutableMessageDTO>>() {});
 
     assertEquals(size, messageListResult.size());
   }
@@ -75,13 +76,12 @@ public class MessageControllerTest {
     String text = "message to create";
     UUID userId = UUID.randomUUID();
 
-    MessageCreationDTO messageCreationDTO = new MessageCreationDTO(text);
-    MessageDTO messageDTO = new MessageDTO();
-    messageDTO.setText(text);
+    ImmutableMessageCreationDTO messageCreationDTO = generateMessageCreationDTO(text);
+    ImmutableMessageDTO messageDTO = generateMessageDTO(userId, text);
 
     doReturn(messageDTO)
         .when(messageDomainService)
-        .createMessage(eq(userId), any(MessageCreationDTO.class));
+        .createMessage(eq(userId), any(ImmutableMessageCreationDTO.class));
 
     String endpoint = MessageFormat.format("/msgboard/api/v1/user/{0}/message", userId);
 
@@ -95,28 +95,10 @@ public class MessageControllerTest {
             .andReturn();
 
     String response = mvcResult.getResponse().getContentAsString();
-    MessageDTO createdMessage = objectMapper.readValue(response, MessageDTO.class);
+    ImmutableMessageDTO createdMessage =
+        objectMapper.readValue(response, ImmutableMessageDTO.class);
 
     assertEquals(createdMessage.getText(), text);
-  }
-
-  @Test
-  public void test_create_message_when_message_content_is_null() throws Exception {
-
-    UUID userId = UUID.randomUUID();
-
-    MessageCreationDTO messageCreationDTO = new MessageCreationDTO();
-    messageCreationDTO.setText(null);
-
-    String endpoint = MessageFormat.format("/msgboard/api/v1/user/{0}/message", userId);
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(endpoint)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(messageCreationDTO)))
-        .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andReturn();
   }
 
   @Test
@@ -124,7 +106,7 @@ public class MessageControllerTest {
 
     String userIdWithInvalidFormat = "0000-000";
 
-    MessageCreationDTO messageCreationDTO = new MessageCreationDTO("test to create");
+    ImmutableMessageCreationDTO messageCreationDTO = generateMessageCreationDTO("test to create");
 
     String endpoint =
         MessageFormat.format("/msgboard/api/v1/user/{0}/message", userIdWithInvalidFormat);
@@ -145,13 +127,12 @@ public class MessageControllerTest {
     UUID userId = UUID.randomUUID();
     UUID messageId = UUID.randomUUID();
 
-    MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO(text);
-    MessageDTO messageDTO = new MessageDTO();
-    messageDTO.setText(text);
+    ImmutableMessageUpdateDTO messageUpdateDTO = generateMessageUpdateDTO(text);
+    ImmutableMessageDTO messageDTO = generateMessageDTO(userId, text);
 
     doReturn(messageDTO)
         .when(messageDomainService)
-        .updateMessage(eq(userId), eq(messageId), any(MessageUpdateDTO.class));
+        .updateMessage(eq(userId), eq(messageId), any(ImmutableMessageUpdateDTO.class));
 
     String endpoint =
         MessageFormat.format("/msgboard/api/v1/user/{0}/message/{1}", userId, messageId);
@@ -166,30 +147,10 @@ public class MessageControllerTest {
             .andReturn();
 
     String response = mvcResult.getResponse().getContentAsString();
-    MessageDTO updatedMessage = objectMapper.readValue(response, MessageDTO.class);
+    ImmutableMessageDTO updatedMessage =
+        objectMapper.readValue(response, ImmutableMessageDTO.class);
 
     assertEquals(updatedMessage.getText(), text);
-  }
-
-  @Test
-  public void test_update_message_when_message_content_is_null() throws Exception {
-
-    UUID userId = UUID.randomUUID();
-    UUID messageId = UUID.randomUUID();
-
-    MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO();
-    messageUpdateDTO.setText(null);
-
-    String endpoint =
-        MessageFormat.format("/msgboard/api/v1/user/{0}/message/{1}", userId, messageId);
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.put(endpoint)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsBytes(messageUpdateDTO)))
-        .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andReturn();
   }
 
   @Test
@@ -198,8 +159,7 @@ public class MessageControllerTest {
     String userIdWithInvalidFormat = "0000-000";
     UUID messageId = UUID.randomUUID();
 
-    MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO("text to update");
-    messageUpdateDTO.setText(null);
+    ImmutableMessageUpdateDTO messageUpdateDTO = generateMessageUpdateDTO("text to update");
 
     String endpoint =
         MessageFormat.format(
@@ -220,8 +180,7 @@ public class MessageControllerTest {
     UUID userID = UUID.randomUUID();
     String messageIdWithInvalidFormat = "0000-000";
 
-    MessageUpdateDTO messageUpdateDTO = new MessageUpdateDTO("text to update");
-    messageUpdateDTO.setText(null);
+    ImmutableMessageUpdateDTO messageUpdateDTO = generateMessageUpdateDTO("text to update");
 
     String endpoint =
         MessageFormat.format(

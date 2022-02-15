@@ -1,61 +1,26 @@
 package com.sbg.msgboard.domain.message.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.immutables.value.Value;
+
 import java.time.Instant;
 import java.util.UUID;
 
-public class MessageDTO {
-  private UUID id;
-  private String text;
-  private UUID senderId;
-  private Instant createdAt;
-  private Instant modifiedAt;
-  private int version;
+@Value.Immutable
+@JsonSerialize(as = ImmutableMessageDTO.class)
+@JsonDeserialize(as = ImmutableMessageDTO.class)
+public abstract class MessageDTO {
 
-  public UUID getId() {
-    return id;
-  }
+  public abstract UUID getId();
 
-  public void setId(UUID id) {
-    this.id = id;
-  }
+  public abstract String getText();
 
-  public String getText() {
-    return text;
-  }
+  public abstract UUID getSenderId();
 
-  public void setText(String text) {
-    this.text = text;
-  }
+  public abstract Instant getCreatedAt();
 
-  public UUID getSenderId() {
-    return senderId;
-  }
+  public abstract Instant getModifiedAt();
 
-  public void setSenderId(UUID senderId) {
-    this.senderId = senderId;
-  }
-
-  public Instant getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(Instant createdAt) {
-    this.createdAt = createdAt;
-  }
-
-  public Instant getModifiedAt() {
-    return modifiedAt;
-  }
-
-  public void setModifiedAt(Instant modifiedAt) {
-    this.modifiedAt = modifiedAt;
-  }
-
-  public int getVersion() {
-    return version;
-  }
-
-  public void setVersion(int version) {
-    this.version = version;
-  }
+  public abstract int getVersion();
 }

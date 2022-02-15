@@ -10,26 +10,26 @@ import javax.persistence.Entity;
 @Entity
 public class Message extends BaseModel {
 
+  @Embedded private Content content;
+  @Embedded private Sender sender;
+
   public Message() {}
 
   public Message(Content content, Sender sender) {
-    setSender(sender);
-    setContent(content);
+    this.setContent(content);
+    this.setSender(sender);
   }
-
-  @Embedded private Content content;
-  @Embedded private Sender sender;
 
   public Content getContent() {
     return content;
   }
 
-  public void setContent(Content content) {
-    this.content = content;
-  }
-
   public Sender getSender() {
     return sender;
+  }
+
+  public void setContent(Content content) {
+    this.content = content;
   }
 
   public void setSender(Sender sender) {

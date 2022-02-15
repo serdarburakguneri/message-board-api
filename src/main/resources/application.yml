@@ -5,5 +5,5 @@ spring:
 security:
   issuer-uri: ${AUTH_ISSUER_URI}
   configuration:
-    enabled: true
+    enabled: false
     allowed-origins: ${ALLOWED_ORIGINS}

@@ -1,8 +1,8 @@
 package com.sbg.msgboard.domain.message.service;
 
-import com.sbg.msgboard.domain.message.dto.MessageCreationDTO;
-import com.sbg.msgboard.domain.message.dto.MessageDTO;
-import com.sbg.msgboard.domain.message.dto.MessageUpdateDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageCreationDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageDTO;
+import com.sbg.msgboard.domain.message.dto.ImmutableMessageUpdateDTO;
 import com.sbg.msgboard.domain.message.exception.MessageNotFoundException;
 import com.sbg.msgboard.shared.exception.UserAuthorizationException;
 
@@ -11,13 +11,13 @@ import java.util.UUID;
 
 public interface MessageDomainService {
 
-  MessageDTO createMessage(UUID userId, MessageCreationDTO messageCreationDTO);
+  ImmutableMessageDTO createMessage(UUID userId, ImmutableMessageCreationDTO messageCreationDTO);
 
-  MessageDTO updateMessage(UUID userId, UUID messageId, MessageUpdateDTO messageUpdateDTO)
+  ImmutableMessageDTO updateMessage(UUID userId, UUID messageId, ImmutableMessageUpdateDTO messageUpdateDTO)
       throws MessageNotFoundException, UserAuthorizationException;
 
   void deleteMessage(UUID userId, UUID messageId)
       throws MessageNotFoundException, UserAuthorizationException;
 
-  List<MessageDTO> findAllMessages(int page, int size);
+  List<ImmutableMessageDTO> findAllMessages(int page, int size);
 }
