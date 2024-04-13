@@ -1,11 +1,16 @@
 # message-board-api
 
-A sample Restful API for a message board application where users can create, update and delete their own messages 
+A simple Restful API for a message board application where users can create, update and delete their own messages 
 and list all the messages of the board.
+
+* This project was a case study for Storytel with DDD. I also had a basic infra in AWS for the first time using my trial account.
+* Unfortunately, I was not familiar with Terraform so I don't have IAC included in the repository.
+
 
 ### Dependencies
 It's a Maven project and the pom.xml file has the dependencies mentioned below:
 
+Java 11, <br/>
 Spring Boot Web for rest controller, <br/>
 Spring Boot JPA for database operations, <br/>
 Spring Boot Test for unit testing, <br/>
